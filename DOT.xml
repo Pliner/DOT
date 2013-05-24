@@ -240,8 +240,10 @@
   <target name="init.artifacts">
     <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
     <property name="artifact.output.rabbitmq:jar" value="${basedir}/out/artifacts"/>
+    <property name="artifact.output.zeromq:jar" value="${basedir}/out/artifacts"/>
     <mkdir dir="${artifacts.temp.dir}"/>
     <property name="temp.jar.path.RabbitMQ.jar" value="${artifacts.temp.dir}/RabbitMQ.jar"/>
+    <property name="temp.jar.path.ZeroMQ.jar" value="${artifacts.temp.dir}/ZeroMQ.jar"/>
   </target>
   
   <target name="artifact.rabbitmq:jar" depends="init.artifacts, compile.module.rabbitmq" description="Build &#39;RabbitMQ:jar&#39; artifact">
@@ -249,18 +251,33 @@
     <mkdir dir="${artifact.temp.output.rabbitmq:jar}"/>
     <jar destfile="${temp.jar.path.RabbitMQ.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
       <zipfileset dir="${rabbitmq.output.dir}"/>
+      <zipfileset src="${basedir}/RabbitMQ/libs/commons-io-1.2.jar"/>
       <zipfileset src="${basedir}/RabbitMQ/libs/rabbitmq-client.jar"/>
       <zipfileset src="${basedir}/RabbitMQ/libs/commons-cli-1.1.jar"/>
-      <zipfileset src="${basedir}/RabbitMQ/libs/commons-io-1.2.jar"/>
       <zipfileset src="${basedir}/RabbitMQ/libs/gson-2.2.4.jar"/>
     </jar>
     <copy file="${temp.jar.path.RabbitMQ.jar}" tofile="${artifact.temp.output.rabbitmq:jar}/RabbitMQ.jar"/>
   </target>
   
-  <target name="build.all.artifacts" depends="artifact.rabbitmq:jar" description="Build all artifacts">
+  <target name="artifact.zeromq:jar" depends="init.artifacts, compile.module.zeromq" description="Build &#39;ZeroMQ:jar&#39; artifact">
+    <property name="artifact.temp.output.zeromq:jar" value="${artifacts.temp.dir}/ZeroMQ_jar"/>
+    <mkdir dir="${artifact.temp.output.zeromq:jar}"/>
+    <jar destfile="${temp.jar.path.ZeroMQ.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset dir="${zeromq.output.dir}"/>
+      <zipfileset src="${basedir}/ZeroMQ/libs/gson-2.2.4.jar"/>
+      <zipfileset src="${basedir}/ZeroMQ/libs/jeromq-0.3.0-SNAPSHOT.jar"/>
+    </jar>
+    <copy file="${temp.jar.path.ZeroMQ.jar}" tofile="${artifact.temp.output.zeromq:jar}/ZeroMQ.jar"/>
+  </target>
+  
+  <target name="build.all.artifacts" depends="artifact.rabbitmq:jar, artifact.zeromq:jar" description="Build all artifacts">
     <mkdir dir="${artifact.output.rabbitmq:jar}"/>
     <copy todir="${artifact.output.rabbitmq:jar}">
       <fileset dir="${artifact.temp.output.rabbitmq:jar}"/>
+    </copy>
+    <mkdir dir="${artifact.output.zeromq:jar}"/>
+    <copy todir="${artifact.output.zeromq:jar}">
+      <fileset dir="${artifact.temp.output.zeromq:jar}"/>
     </copy>
     
     <!-- Delete temporary files -->
