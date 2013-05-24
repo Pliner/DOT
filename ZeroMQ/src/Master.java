@@ -59,7 +59,6 @@ public class Master
                         publisher.send(gson.toJson(taskRequest).getBytes(), 0);
                         tasks.putIfAbsent(taskRequest.Id, taskRequest);
                         System.out.println(" [x] Master sent '" + taskRequest + "'");
-                        Thread.sleep(5000);
                     }
                 } catch (Exception e)
                 {

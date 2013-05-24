@@ -55,6 +55,7 @@ public class Worker
                 {
                     QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                     TaskRequest request = gson.fromJson(new String(delivery.getBody()), TaskRequest.class);
+                    Thread.sleep(5000);
 
                     System.out.println(" [x] Worker received '" + request + "'");
                     responses.add(new TaskResponse(request.A + request.B, request.Id));

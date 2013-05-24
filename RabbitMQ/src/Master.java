@@ -57,7 +57,6 @@ public class Master
                         channel.waitForConfirmsOrDie();
                         tasks.putIfAbsent(taskRequest.Id, taskRequest);
                         System.out.println(" [x] Master sent '" + taskRequest + "'");
-                        Thread.sleep(5000);
                     }
                 } finally
                 {

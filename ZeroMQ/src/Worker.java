@@ -49,7 +49,7 @@ public class Worker
                     TaskRequest request = gson.fromJson(string, TaskRequest.class);
 
                     System.out.println(String.format(" [x] Worker received %s", request));
-
+                    Thread.sleep(5000);
                     TaskResponse response = new TaskResponse(request.A + request.B, request.Id);
                     sender.send(gson.toJson(response).getBytes(), 0);
                     System.out.println(String.format(" [x] Worker sent %s", request));
