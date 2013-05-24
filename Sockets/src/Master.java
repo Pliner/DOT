@@ -52,7 +52,6 @@ public class Master
                     System.out.println(String.format("[x] Master sent %s + %s", a, b));
                     int c = in.readInt();
                     System.out.println(String.format("[x] Master received %s + %s = %s", a, b, c));
-                    Thread.sleep(5000);
                 }
             } catch (Exception x) {
                 x.printStackTrace();

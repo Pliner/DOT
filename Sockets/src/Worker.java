@@ -43,6 +43,7 @@ public class Worker
                     int a = in.readInt();
                     int b = in.readInt();
                     System.out.println(String.format("[x] Worker received %s + %s", a, b));
+                    Thread.sleep(5000);
                     out.writeInt(a + b);
                     out.flush();
                     System.out.println(String.format("[x] Worker sent %s ", a + b));

@@ -221,6 +221,101 @@
   </target>
   
   
+  <!-- Module XmlRpc -->
+  
+  <dirname property="module.xmlrpc.basedir" file="${ant.file}"/>
+  
+  
+  
+  <property name="compiler.args.xmlrpc" value="${compiler.args}"/>
+  
+  <property name="xmlrpc.output.dir" value="${module.xmlrpc.basedir}/out/production/XmlRpc"/>
+  <property name="xmlrpc.testoutput.dir" value="${module.xmlrpc.basedir}/out/test/XmlRpc"/>
+  
+  <path id="xmlrpc.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="xmlrpc.module.production.classpath">
+    <pathelement location="${basedir}/XmlRpc/libs/commons-logging-1.1.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/ws-commons-util-1.0.2.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-client-3.1.3.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-common-3.1.3.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-server-3.1.3.jar"/>
+  </path>
+  
+  <path id="xmlrpc.runtime.production.module.classpath">
+    <pathelement location="${xmlrpc.output.dir}"/>
+    <pathelement location="${basedir}/XmlRpc/libs/commons-logging-1.1.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/ws-commons-util-1.0.2.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-client-3.1.3.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-common-3.1.3.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-server-3.1.3.jar"/>
+  </path>
+  
+  <path id="xmlrpc.module.classpath">
+    <pathelement location="${xmlrpc.output.dir}"/>
+    <pathelement location="${basedir}/XmlRpc/libs/commons-logging-1.1.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/ws-commons-util-1.0.2.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-client-3.1.3.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-common-3.1.3.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-server-3.1.3.jar"/>
+  </path>
+  
+  <path id="xmlrpc.runtime.module.classpath">
+    <pathelement location="${xmlrpc.testoutput.dir}"/>
+    <pathelement location="${xmlrpc.output.dir}"/>
+    <pathelement location="${basedir}/XmlRpc/libs/commons-logging-1.1.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/ws-commons-util-1.0.2.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-client-3.1.3.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-common-3.1.3.jar"/>
+    <pathelement location="${basedir}/XmlRpc/libs/xmlrpc-server-3.1.3.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.xmlrpc">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.xmlrpc">
+    <patternset refid="excluded.from.module.xmlrpc"/>
+  </patternset>
+  
+  <path id="xmlrpc.module.sourcepath">
+    <dirset dir="${module.xmlrpc.basedir}/XmlRpc">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.xmlrpc" depends="compile.module.xmlrpc.production,compile.module.xmlrpc.tests" description="Compile module XmlRpc"/>
+  
+  <target name="compile.module.xmlrpc.production" description="Compile module XmlRpc; production classes">
+    <mkdir dir="${xmlrpc.output.dir}"/>
+    <javac destdir="${xmlrpc.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.xmlrpc}"/>
+      <bootclasspath refid="xmlrpc.module.bootclasspath"/>
+      <classpath refid="xmlrpc.module.production.classpath"/>
+      <src refid="xmlrpc.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.xmlrpc"/>
+    </javac>
+    
+    <copy todir="${xmlrpc.output.dir}">
+      <fileset dir="${module.xmlrpc.basedir}/XmlRpc/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.xmlrpc.tests" depends="compile.module.xmlrpc.production" description="compile module XmlRpc; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.xmlrpc" description="cleanup module">
+    <delete dir="${xmlrpc.output.dir}"/>
+    <delete dir="${xmlrpc.testoutput.dir}"/>
+  </target>
+  
+  
   <!-- Module ZeroMQ -->
   
   <dirname property="module.zeromq.basedir" file="${ant.file}"/>
@@ -307,18 +402,20 @@
     <!-- Perform any build initialization in this target -->
   </target>
   
-  <target name="clean" depends="clean.module.rabbitmq, clean.module.sockets, clean.module.zeromq" description="cleanup all"/>
+  <target name="clean" depends="clean.module.rabbitmq, clean.module.sockets, clean.module.xmlrpc, clean.module.zeromq" description="cleanup all"/>
   
-  <target name="build.modules" depends="init, clean, compile.module.rabbitmq, compile.module.sockets, compile.module.zeromq" description="build all modules"/>
+  <target name="build.modules" depends="init, clean, compile.module.rabbitmq, compile.module.sockets, compile.module.xmlrpc, compile.module.zeromq" description="build all modules"/>
   
   <target name="init.artifacts">
     <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
     <property name="artifact.output.rabbitmq:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.sockets:jar" value="${basedir}/out/artifacts"/>
+    <property name="artifact.output.xmlrpc:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.zeromq:jar" value="${basedir}/out/artifacts"/>
     <mkdir dir="${artifacts.temp.dir}"/>
     <property name="temp.jar.path.RabbitMQ.jar" value="${artifacts.temp.dir}/RabbitMQ.jar"/>
     <property name="temp.jar.path.Sockets.jar" value="${artifacts.temp.dir}/Sockets.jar"/>
+    <property name="temp.jar.path.XmlRpc.jar" value="${artifacts.temp.dir}/XmlRpc.jar"/>
     <property name="temp.jar.path.ZeroMQ.jar" value="${artifacts.temp.dir}/ZeroMQ.jar"/>
   </target>
   
@@ -344,6 +441,20 @@
     <copy file="${temp.jar.path.Sockets.jar}" tofile="${artifact.temp.output.sockets:jar}/Sockets.jar"/>
   </target>
   
+  <target name="artifact.xmlrpc:jar" depends="init.artifacts, compile.module.xmlrpc" description="Build &#39;XmlRpc:jar&#39; artifact">
+    <property name="artifact.temp.output.xmlrpc:jar" value="${artifacts.temp.dir}/XmlRpc_jar"/>
+    <mkdir dir="${artifact.temp.output.xmlrpc:jar}"/>
+    <jar destfile="${temp.jar.path.XmlRpc.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset dir="${xmlrpc.output.dir}"/>
+      <zipfileset src="${basedir}/XmlRpc/libs/xmlrpc-common-3.1.3.jar"/>
+      <zipfileset src="${basedir}/XmlRpc/libs/ws-commons-util-1.0.2.jar"/>
+      <zipfileset src="${basedir}/XmlRpc/libs/xmlrpc-client-3.1.3.jar"/>
+      <zipfileset src="${basedir}/XmlRpc/libs/xmlrpc-server-3.1.3.jar"/>
+      <zipfileset src="${basedir}/XmlRpc/libs/commons-logging-1.1.jar"/>
+    </jar>
+    <copy file="${temp.jar.path.XmlRpc.jar}" tofile="${artifact.temp.output.xmlrpc:jar}/XmlRpc.jar"/>
+  </target>
+  
   <target name="artifact.zeromq:jar" depends="init.artifacts, compile.module.zeromq" description="Build &#39;ZeroMQ:jar&#39; artifact">
     <property name="artifact.temp.output.zeromq:jar" value="${artifacts.temp.dir}/ZeroMQ_jar"/>
     <mkdir dir="${artifact.temp.output.zeromq:jar}"/>
@@ -355,7 +466,7 @@
     <copy file="${temp.jar.path.ZeroMQ.jar}" tofile="${artifact.temp.output.zeromq:jar}/ZeroMQ.jar"/>
   </target>
   
-  <target name="build.all.artifacts" depends="artifact.rabbitmq:jar, artifact.sockets:jar, artifact.zeromq:jar" description="Build all artifacts">
+  <target name="build.all.artifacts" depends="artifact.rabbitmq:jar, artifact.sockets:jar, artifact.xmlrpc:jar, artifact.zeromq:jar" description="Build all artifacts">
     <mkdir dir="${artifact.output.rabbitmq:jar}"/>
     <copy todir="${artifact.output.rabbitmq:jar}">
       <fileset dir="${artifact.temp.output.rabbitmq:jar}"/>
@@ -363,6 +474,10 @@
     <mkdir dir="${artifact.output.sockets:jar}"/>
     <copy todir="${artifact.output.sockets:jar}">
       <fileset dir="${artifact.temp.output.sockets:jar}"/>
+    </copy>
+    <mkdir dir="${artifact.output.xmlrpc:jar}"/>
+    <copy todir="${artifact.output.xmlrpc:jar}">
+      <fileset dir="${artifact.temp.output.xmlrpc:jar}"/>
     </copy>
     <mkdir dir="${artifact.output.zeromq:jar}"/>
     <copy todir="${artifact.output.zeromq:jar}">
