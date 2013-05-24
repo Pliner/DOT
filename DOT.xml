@@ -147,6 +147,80 @@
   </target>
   
   
+  <!-- Module Sockets -->
+  
+  <dirname property="module.sockets.basedir" file="${ant.file}"/>
+  
+  
+  
+  <property name="compiler.args.sockets" value="${compiler.args}"/>
+  
+  <property name="sockets.output.dir" value="${module.sockets.basedir}/out/production/Sockets"/>
+  <property name="sockets.testoutput.dir" value="${module.sockets.basedir}/out/test/Sockets"/>
+  
+  <path id="sockets.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="sockets.module.production.classpath"/>
+  
+  <path id="sockets.runtime.production.module.classpath">
+    <pathelement location="${sockets.output.dir}"/>
+  </path>
+  
+  <path id="sockets.module.classpath">
+    <pathelement location="${sockets.output.dir}"/>
+  </path>
+  
+  <path id="sockets.runtime.module.classpath">
+    <pathelement location="${sockets.testoutput.dir}"/>
+    <pathelement location="${sockets.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.sockets">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.sockets">
+    <patternset refid="excluded.from.module.sockets"/>
+  </patternset>
+  
+  <path id="sockets.module.sourcepath">
+    <dirset dir="${module.sockets.basedir}/Sockets">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.sockets" depends="compile.module.sockets.production,compile.module.sockets.tests" description="Compile module Sockets"/>
+  
+  <target name="compile.module.sockets.production" description="Compile module Sockets; production classes">
+    <mkdir dir="${sockets.output.dir}"/>
+    <javac destdir="${sockets.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.sockets}"/>
+      <bootclasspath refid="sockets.module.bootclasspath"/>
+      <classpath refid="sockets.module.production.classpath"/>
+      <src refid="sockets.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.sockets"/>
+    </javac>
+    
+    <copy todir="${sockets.output.dir}">
+      <fileset dir="${module.sockets.basedir}/Sockets/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.sockets.tests" depends="compile.module.sockets.production" description="compile module Sockets; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.sockets" description="cleanup module">
+    <delete dir="${sockets.output.dir}"/>
+    <delete dir="${sockets.testoutput.dir}"/>
+  </target>
+  
+  
   <!-- Module ZeroMQ -->
   
   <dirname property="module.zeromq.basedir" file="${ant.file}"/>
@@ -233,16 +307,18 @@
     <!-- Perform any build initialization in this target -->
   </target>
   
-  <target name="clean" depends="clean.module.rabbitmq, clean.module.zeromq" description="cleanup all"/>
+  <target name="clean" depends="clean.module.rabbitmq, clean.module.sockets, clean.module.zeromq" description="cleanup all"/>
   
-  <target name="build.modules" depends="init, clean, compile.module.rabbitmq, compile.module.zeromq" description="build all modules"/>
+  <target name="build.modules" depends="init, clean, compile.module.rabbitmq, compile.module.sockets, compile.module.zeromq" description="build all modules"/>
   
   <target name="init.artifacts">
     <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
     <property name="artifact.output.rabbitmq:jar" value="${basedir}/out/artifacts"/>
+    <property name="artifact.output.sockets:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.zeromq:jar" value="${basedir}/out/artifacts"/>
     <mkdir dir="${artifacts.temp.dir}"/>
     <property name="temp.jar.path.RabbitMQ.jar" value="${artifacts.temp.dir}/RabbitMQ.jar"/>
+    <property name="temp.jar.path.Sockets.jar" value="${artifacts.temp.dir}/Sockets.jar"/>
     <property name="temp.jar.path.ZeroMQ.jar" value="${artifacts.temp.dir}/ZeroMQ.jar"/>
   </target>
   
@@ -259,6 +335,15 @@
     <copy file="${temp.jar.path.RabbitMQ.jar}" tofile="${artifact.temp.output.rabbitmq:jar}/RabbitMQ.jar"/>
   </target>
   
+  <target name="artifact.sockets:jar" depends="init.artifacts, compile.module.sockets" description="Build &#39;Sockets:jar&#39; artifact">
+    <property name="artifact.temp.output.sockets:jar" value="${artifacts.temp.dir}/Sockets_jar"/>
+    <mkdir dir="${artifact.temp.output.sockets:jar}"/>
+    <jar destfile="${temp.jar.path.Sockets.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset dir="${sockets.output.dir}"/>
+    </jar>
+    <copy file="${temp.jar.path.Sockets.jar}" tofile="${artifact.temp.output.sockets:jar}/Sockets.jar"/>
+  </target>
+  
   <target name="artifact.zeromq:jar" depends="init.artifacts, compile.module.zeromq" description="Build &#39;ZeroMQ:jar&#39; artifact">
     <property name="artifact.temp.output.zeromq:jar" value="${artifacts.temp.dir}/ZeroMQ_jar"/>
     <mkdir dir="${artifact.temp.output.zeromq:jar}"/>
@@ -270,10 +355,14 @@
     <copy file="${temp.jar.path.ZeroMQ.jar}" tofile="${artifact.temp.output.zeromq:jar}/ZeroMQ.jar"/>
   </target>
   
-  <target name="build.all.artifacts" depends="artifact.rabbitmq:jar, artifact.zeromq:jar" description="Build all artifacts">
+  <target name="build.all.artifacts" depends="artifact.rabbitmq:jar, artifact.sockets:jar, artifact.zeromq:jar" description="Build all artifacts">
     <mkdir dir="${artifact.output.rabbitmq:jar}"/>
     <copy todir="${artifact.output.rabbitmq:jar}">
       <fileset dir="${artifact.temp.output.rabbitmq:jar}"/>
+    </copy>
+    <mkdir dir="${artifact.output.sockets:jar}"/>
+    <copy todir="${artifact.output.sockets:jar}">
+      <fileset dir="${artifact.temp.output.sockets:jar}"/>
     </copy>
     <mkdir dir="${artifact.output.zeromq:jar}"/>
     <copy todir="${artifact.output.zeromq:jar}">
