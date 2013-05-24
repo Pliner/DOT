@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dot" default="all">
+  
+  
+  <property file="DOT.properties"/>
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <!-- 
+  <property name="skip.tests" value="true"/>
+   -->
+  
+  <!-- Compiler options -->
+  
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="128m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/SCCS/**"/>
+    <exclude name="**/RCS/**"/>
+    <exclude name="**/rcs/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/.pyc/**"/>
+    <exclude name="**/.pyo/**"/>
+    <exclude name="**/*.pyc/**"/>
+    <exclude name="**/*.pyo/**"/>
+    <exclude name="**/.git/**"/>
+    <exclude name="**/*.hprof/**"/>
+    <exclude name="**/_svn/**"/>
+    <exclude name="**/.hg/**"/>
+    <exclude name="**/*.lib/**"/>
+    <exclude name="**/*~/**"/>
+    <exclude name="**/__pycache__/**"/>
+    <exclude name="**/.bundle/**"/>
+    <exclude name="**/*.rbc/**"/>
+  </patternset>
+  <patternset id="library.patterns">
+    <include name="*.war"/>
+    <include name="*.ear"/>
+    <include name="*.apk"/>
+    <include name="*.zip"/>
+    <include name="*.swc"/>
+    <include name="*.ane"/>
+    <include name="*.egg"/>
+    <include name="*.jar"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <exclude name="**/?*.java"/>
+    <exclude name="**/?*.form"/>
+    <exclude name="**/?*.class"/>
+    <exclude name="**/?*.groovy"/>
+    <exclude name="**/?*.scala"/>
+    <exclude name="**/?*.flex"/>
+    <exclude name="**/?*.kt"/>
+    <exclude name="**/?*.clj"/>
+  </patternset>
+  
+  
+  <!-- Project Libraries -->
+  
+  <path id="library.libs.classpath">
+    <pathelement location="${basedir}/RabbitMQ/libs/commons-cli-1.1.jar"/>
+    <pathelement location="${basedir}/RabbitMQ/libs/commons-io-1.2.jar"/>
+    <pathelement location="${basedir}/RabbitMQ/libs/gson-2.2.4.jar"/>
+    <pathelement location="${basedir}/RabbitMQ/libs/rabbitmq-client.jar"/>
+  </path>
+  
+  <!-- Modules -->
+  
+  
+  <!-- Module RabbitMQ -->
+  
+  <dirname property="module.rabbitmq.basedir" file="${ant.file}"/>
+  
+  
+  
+  <property name="compiler.args.rabbitmq" value="${compiler.args}"/>
+  
+  <property name="rabbitmq.output.dir" value="${module.rabbitmq.basedir}/out/production/RabbitMQ"/>
+  <property name="rabbitmq.testoutput.dir" value="${module.rabbitmq.basedir}/out/test/RabbitMQ"/>
+  
+  <path id="rabbitmq.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="rabbitmq.module.production.classpath">
+    <path refid="library.libs.classpath"/>
+  </path>
+  
+  <path id="rabbitmq.runtime.production.module.classpath">
+    <pathelement location="${rabbitmq.output.dir}"/>
+    <path refid="library.libs.classpath"/>
+  </path>
+  
+  <path id="rabbitmq.module.classpath">
+    <pathelement location="${rabbitmq.output.dir}"/>
+    <path refid="library.libs.classpath"/>
+  </path>
+  
+  <path id="rabbitmq.runtime.module.classpath">
+    <pathelement location="${rabbitmq.testoutput.dir}"/>
+    <pathelement location="${rabbitmq.output.dir}"/>
+    <path refid="library.libs.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.rabbitmq">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.rabbitmq">
+    <patternset refid="excluded.from.module.rabbitmq"/>
+  </patternset>
+  
+  <path id="rabbitmq.module.sourcepath">
+    <dirset dir="${module.rabbitmq.basedir}/RabbitMQ">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.rabbitmq" depends="compile.module.rabbitmq.production,compile.module.rabbitmq.tests" description="Compile module RabbitMQ"/>
+  
+  <target name="compile.module.rabbitmq.production" description="Compile module RabbitMQ; production classes">
+    <mkdir dir="${rabbitmq.output.dir}"/>
+    <javac destdir="${rabbitmq.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.rabbitmq}"/>
+      <bootclasspath refid="rabbitmq.module.bootclasspath"/>
+      <classpath refid="rabbitmq.module.production.classpath"/>
+      <src refid="rabbitmq.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.rabbitmq"/>
+    </javac>
+    
+    <copy todir="${rabbitmq.output.dir}">
+      <fileset dir="${module.rabbitmq.basedir}/RabbitMQ/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.rabbitmq.tests" depends="compile.module.rabbitmq.production" description="compile module RabbitMQ; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.rabbitmq" description="cleanup module">
+    <delete dir="${rabbitmq.output.dir}"/>
+    <delete dir="${rabbitmq.testoutput.dir}"/>
+  </target>
+  
+  
+  <!-- Module ZeroMQ -->
+  
+  <dirname property="module.zeromq.basedir" file="${ant.file}"/>
+  
+  
+  
+  <property name="compiler.args.zeromq" value="${compiler.args}"/>
+  
+  <property name="zeromq.output.dir" value="${module.zeromq.basedir}/out/production/ZeroMQ"/>
+  <property name="zeromq.testoutput.dir" value="${module.zeromq.basedir}/out/test/ZeroMQ"/>
+  
+  <path id="zeromq.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="zeromq.module.production.classpath">
+    <pathelement location="${basedir}/ZeroMQ/libs/jeromq-0.3.0-SNAPSHOT.jar"/>
+    <pathelement location="${basedir}/ZeroMQ/libs/gson-2.2.4.jar"/>
+  </path>
+  
+  <path id="zeromq.runtime.production.module.classpath">
+    <pathelement location="${zeromq.output.dir}"/>
+    <pathelement location="${basedir}/ZeroMQ/libs/jeromq-0.3.0-SNAPSHOT.jar"/>
+    <pathelement location="${basedir}/ZeroMQ/libs/gson-2.2.4.jar"/>
+  </path>
+  
+  <path id="zeromq.module.classpath">
+    <pathelement location="${zeromq.output.dir}"/>
+    <pathelement location="${basedir}/ZeroMQ/libs/jeromq-0.3.0-SNAPSHOT.jar"/>
+    <pathelement location="${basedir}/ZeroMQ/libs/gson-2.2.4.jar"/>
+  </path>
+  
+  <path id="zeromq.runtime.module.classpath">
+    <pathelement location="${zeromq.testoutput.dir}"/>
+    <pathelement location="${zeromq.output.dir}"/>
+    <pathelement location="${basedir}/ZeroMQ/libs/jeromq-0.3.0-SNAPSHOT.jar"/>
+    <pathelement location="${basedir}/ZeroMQ/libs/gson-2.2.4.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.zeromq">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.zeromq">
+    <patternset refid="excluded.from.module.zeromq"/>
+  </patternset>
+  
+  <path id="zeromq.module.sourcepath">
+    <dirset dir="${module.zeromq.basedir}/ZeroMQ">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.zeromq" depends="compile.module.zeromq.production,compile.module.zeromq.tests" description="Compile module ZeroMQ"/>
+  
+  <target name="compile.module.zeromq.production" description="Compile module ZeroMQ; production classes">
+    <mkdir dir="${zeromq.output.dir}"/>
+    <javac destdir="${zeromq.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.zeromq}"/>
+      <bootclasspath refid="zeromq.module.bootclasspath"/>
+      <classpath refid="zeromq.module.production.classpath"/>
+      <src refid="zeromq.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.zeromq"/>
+    </javac>
+    
+    <copy todir="${zeromq.output.dir}">
+      <fileset dir="${module.zeromq.basedir}/ZeroMQ/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.zeromq.tests" depends="compile.module.zeromq.production" description="compile module ZeroMQ; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.zeromq" description="cleanup module">
+    <delete dir="${zeromq.output.dir}"/>
+    <delete dir="${zeromq.testoutput.dir}"/>
+  </target>
+  
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+  
+  <target name="clean" depends="clean.module.rabbitmq, clean.module.zeromq" description="cleanup all"/>
+  
+  <target name="build.modules" depends="init, clean, compile.module.rabbitmq, compile.module.zeromq" description="build all modules"/>
+  
+  <target name="init.artifacts">
+    <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
+    <property name="artifact.output.rabbitmq:jar" value="${basedir}/out/artifacts"/>
+    <mkdir dir="${artifacts.temp.dir}"/>
+    <property name="temp.jar.path.RabbitMQ.jar" value="${artifacts.temp.dir}/RabbitMQ.jar"/>
+  </target>
+  
+  <target name="artifact.rabbitmq:jar" depends="init.artifacts, compile.module.rabbitmq" description="Build &#39;RabbitMQ:jar&#39; artifact">
+    <property name="artifact.temp.output.rabbitmq:jar" value="${artifacts.temp.dir}/RabbitMQ_jar"/>
+    <mkdir dir="${artifact.temp.output.rabbitmq:jar}"/>
+    <jar destfile="${temp.jar.path.RabbitMQ.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset dir="${rabbitmq.output.dir}"/>
+      <zipfileset src="${basedir}/RabbitMQ/libs/rabbitmq-client.jar"/>
+      <zipfileset src="${basedir}/RabbitMQ/libs/commons-cli-1.1.jar"/>
+      <zipfileset src="${basedir}/RabbitMQ/libs/commons-io-1.2.jar"/>
+      <zipfileset src="${basedir}/RabbitMQ/libs/gson-2.2.4.jar"/>
+    </jar>
+    <copy file="${temp.jar.path.RabbitMQ.jar}" tofile="${artifact.temp.output.rabbitmq:jar}/RabbitMQ.jar"/>
+  </target>
+  
+  <target name="build.all.artifacts" depends="artifact.rabbitmq:jar" description="Build all artifacts">
+    <mkdir dir="${artifact.output.rabbitmq:jar}"/>
+    <copy todir="${artifact.output.rabbitmq:jar}">
+      <fileset dir="${artifact.temp.output.rabbitmq:jar}"/>
+    </copy>
+    
+    <!-- Delete temporary files -->
+    <delete dir="${artifacts.temp.dir}"/>
+  </target>
+  
+  <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
+</project>

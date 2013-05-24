@@ -48,9 +48,6 @@ public class Worker
                 channel.exchangeDeclare("TaskRequest", "fanout");
                 channel.queueDeclare("TaskRequest", true, false, false, Collections.<String, Object>emptyMap());
                 channel.queueBind("TaskRequest", "TaskRequest", "");
-
-                System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
-
                 QueueingConsumer consumer = new QueueingConsumer(channel);
                 channel.basicConsume("TaskRequest", true, consumer);
 
@@ -59,6 +56,7 @@ public class Worker
                     QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                     TaskRequest request = gson.fromJson(new String(delivery.getBody()), TaskRequest.class);
 
+                    System.out.println(" [x] Worker received '" + request + "'");
                     responses.add(new TaskResponse(request.A + request.B, request.Id));
                 }
             } catch (Exception e)
@@ -99,9 +97,9 @@ public class Worker
 
                             channel.basicPublish("TaskResponse", "", null, gson.toJson(response).getBytes());
                             channel.waitForConfirmsOrDie();
-                            System.out.println(" [x] Sent '" + response + "'");
-                            Thread.sleep(5000);
+                            System.out.println(" [x] Worker sent '" + response + "'");
                         }
+                        Thread.sleep(5000);
                     }
                 } finally
                 {

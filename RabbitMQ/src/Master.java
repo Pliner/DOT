@@ -56,7 +56,7 @@ public class Master
                         channel.basicPublish("TaskRequest", "", null, gson.toJson(taskRequest).getBytes());
                         channel.waitForConfirmsOrDie();
                         tasks.putIfAbsent(taskRequest.Id, taskRequest);
-                        System.out.println(" [x] Sent '" + taskRequest + "'");
+                        System.out.println(" [x] Master sent '" + taskRequest + "'");
                         Thread.sleep(5000);
                     }
                 } finally
@@ -98,8 +98,6 @@ public class Master
                 channel.queueDeclare("TaskResponse", true, false, false, Collections.<String, Object>emptyMap());
                 channel.queueBind("TaskResponse", "TaskResponse", "");
 
-                System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
-
                 QueueingConsumer consumer = new QueueingConsumer(channel);
                 channel.basicConsume("TaskResponse", true, consumer);
 
@@ -111,10 +109,10 @@ public class Master
                     TaskRequest request = tasks.get(response.Id);
                     if (request == null)
                     {
-                        System.err.println(String.format(" [x] Bad response with id=%s", response.Id));
+                        System.err.println(String.format(" [x] Master received a bad response with id=%s", response.Id));
                     } else
                     {
-                        System.out.println(" [x] Received '" + response + "' for " + request);
+                        System.out.println(" [x] Master received '" + response + "' for " + request);
                     }
 
                 }
