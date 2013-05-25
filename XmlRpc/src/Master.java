@@ -43,7 +43,7 @@ public class Master
             try
             {
                 XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-                config.setServerURL(new URL("http://127.0.0.1:8080/solve"));
+                config.setServerURL(new URL("http://127.0.0.1:6666/solve"));
                 config.setEnabledForExtensions(true);
                 config.setConnectionTimeout(60 * 1000);
                 config.setReplyTimeout(60 * 1000);

@@ -41,7 +41,7 @@ public class Worker
         {
             try
             {
-                WebServer server = new WebServer(8080);
+                WebServer server = new WebServer(6666);
                 XmlRpcStreamServer xmlRpcServer = server.getXmlRpcServer();
                 PropertyHandlerMapping propertyHandlerMapping = new PropertyHandlerMapping();
 
