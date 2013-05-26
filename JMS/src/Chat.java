@@ -5,8 +5,6 @@ import org.apache.log4j.Logger;
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Scanner;
