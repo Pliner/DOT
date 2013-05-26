@@ -68,6 +68,85 @@
   <!-- Modules -->
   
   
+  <!-- Module JMS -->
+  
+  <dirname property="module.jms.basedir" file="${ant.file}"/>
+  
+  
+  
+  <property name="compiler.args.jms" value="${compiler.args}"/>
+  
+  <property name="jms.output.dir" value="${module.jms.basedir}/out/production/JMS"/>
+  <property name="jms.testoutput.dir" value="${module.jms.basedir}/out/test/JMS"/>
+  
+  <path id="jms.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="jms.module.production.classpath">
+    <pathelement location="${basedir}/JMS/libs/activemq-all-5.8.0.jar"/>
+  </path>
+  
+  <path id="jms.runtime.production.module.classpath">
+    <pathelement location="${jms.output.dir}"/>
+    <pathelement location="${basedir}/JMS/libs/activemq-all-5.8.0.jar"/>
+  </path>
+  
+  <path id="jms.module.classpath">
+    <pathelement location="${jms.output.dir}"/>
+    <pathelement location="${basedir}/JMS/libs/activemq-all-5.8.0.jar"/>
+  </path>
+  
+  <path id="jms.runtime.module.classpath">
+    <pathelement location="${jms.testoutput.dir}"/>
+    <pathelement location="${jms.output.dir}"/>
+    <pathelement location="${basedir}/JMS/libs/activemq-all-5.8.0.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.jms">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.jms">
+    <patternset refid="excluded.from.module.jms"/>
+  </patternset>
+  
+  <path id="jms.module.sourcepath">
+    <dirset dir="${module.jms.basedir}/JMS">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.jms" depends="compile.module.jms.production,compile.module.jms.tests" description="Compile module JMS"/>
+  
+  <target name="compile.module.jms.production" description="Compile module JMS; production classes">
+    <mkdir dir="${jms.output.dir}"/>
+    <javac destdir="${jms.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.jms}"/>
+      <bootclasspath refid="jms.module.bootclasspath"/>
+      <classpath refid="jms.module.production.classpath"/>
+      <src refid="jms.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.jms"/>
+    </javac>
+    
+    <copy todir="${jms.output.dir}">
+      <fileset dir="${module.jms.basedir}/JMS/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.jms.tests" depends="compile.module.jms.production" description="compile module JMS; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.jms" description="cleanup module">
+    <delete dir="${jms.output.dir}"/>
+    <delete dir="${jms.testoutput.dir}"/>
+  </target>
+  
+  
   <!-- Module RabbitMQ -->
   
   <dirname property="module.rabbitmq.basedir" file="${ant.file}"/>
@@ -402,21 +481,33 @@
     <!-- Perform any build initialization in this target -->
   </target>
   
-  <target name="clean" depends="clean.module.rabbitmq, clean.module.sockets, clean.module.xmlrpc, clean.module.zeromq" description="cleanup all"/>
+  <target name="clean" depends="clean.module.jms, clean.module.rabbitmq, clean.module.sockets, clean.module.xmlrpc, clean.module.zeromq" description="cleanup all"/>
   
-  <target name="build.modules" depends="init, clean, compile.module.rabbitmq, compile.module.sockets, compile.module.xmlrpc, compile.module.zeromq" description="build all modules"/>
+  <target name="build.modules" depends="init, clean, compile.module.jms, compile.module.rabbitmq, compile.module.sockets, compile.module.xmlrpc, compile.module.zeromq" description="build all modules"/>
   
   <target name="init.artifacts">
     <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
+    <property name="artifact.output.jms:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.rabbitmq:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.sockets:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.xmlrpc:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.zeromq:jar" value="${basedir}/out/artifacts"/>
     <mkdir dir="${artifacts.temp.dir}"/>
+    <property name="temp.jar.path.JMS.jar" value="${artifacts.temp.dir}/JMS.jar"/>
     <property name="temp.jar.path.RabbitMQ.jar" value="${artifacts.temp.dir}/RabbitMQ.jar"/>
     <property name="temp.jar.path.Sockets.jar" value="${artifacts.temp.dir}/Sockets.jar"/>
     <property name="temp.jar.path.XmlRpc.jar" value="${artifacts.temp.dir}/XmlRpc.jar"/>
     <property name="temp.jar.path.ZeroMQ.jar" value="${artifacts.temp.dir}/ZeroMQ.jar"/>
+  </target>
+  
+  <target name="artifact.jms:jar" depends="init.artifacts, compile.module.jms" description="Build &#39;JMS:jar&#39; artifact">
+    <property name="artifact.temp.output.jms:jar" value="${artifacts.temp.dir}/JMS_jar"/>
+    <mkdir dir="${artifact.temp.output.jms:jar}"/>
+    <jar destfile="${temp.jar.path.JMS.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset dir="${jms.output.dir}"/>
+      <zipfileset src="${basedir}/JMS/libs/activemq-all-5.8.0.jar"/>
+    </jar>
+    <copy file="${temp.jar.path.JMS.jar}" tofile="${artifact.temp.output.jms:jar}/JMS.jar"/>
   </target>
   
   <target name="artifact.rabbitmq:jar" depends="init.artifacts, compile.module.rabbitmq" description="Build &#39;RabbitMQ:jar&#39; artifact">
@@ -466,7 +557,11 @@
     <copy file="${temp.jar.path.ZeroMQ.jar}" tofile="${artifact.temp.output.zeromq:jar}/ZeroMQ.jar"/>
   </target>
   
-  <target name="build.all.artifacts" depends="artifact.rabbitmq:jar, artifact.sockets:jar, artifact.xmlrpc:jar, artifact.zeromq:jar" description="Build all artifacts">
+  <target name="build.all.artifacts" depends="artifact.jms:jar, artifact.rabbitmq:jar, artifact.sockets:jar, artifact.xmlrpc:jar, artifact.zeromq:jar" description="Build all artifacts">
+    <mkdir dir="${artifact.output.jms:jar}"/>
+    <copy todir="${artifact.output.jms:jar}">
+      <fileset dir="${artifact.temp.output.jms:jar}"/>
+    </copy>
     <mkdir dir="${artifact.output.rabbitmq:jar}"/>
     <copy todir="${artifact.output.rabbitmq:jar}">
       <fileset dir="${artifact.temp.output.rabbitmq:jar}"/>
