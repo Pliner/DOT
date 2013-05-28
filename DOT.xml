@@ -300,6 +300,121 @@
   </target>
   
   
+  <!-- Module Thrift -->
+  
+  <dirname property="module.thrift.basedir" file="${ant.file}"/>
+  
+  
+  
+  <property name="compiler.args.thrift" value="${compiler.args}"/>
+  
+  <property name="thrift.output.dir" value="${module.thrift.basedir}/out/production/Thrift"/>
+  <property name="thrift.testoutput.dir" value="${module.thrift.basedir}/out/test/Thrift"/>
+  
+  <path id="thrift.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="thrift.module.production.classpath">
+    <pathelement location="${basedir}/Thrift/lib/libthrift-0.9.0.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-codec-1.4.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-lang-2.5.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-logging-1.1.1.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/httpclient-4.1.3.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/httpcore-4.1.3.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/log4j-1.2.14.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/servlet-api-2.5.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/slf4j-api-1.5.8.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/slf4j-log4j12-1.5.8.jar"/>
+  </path>
+  
+  <path id="thrift.runtime.production.module.classpath">
+    <pathelement location="${thrift.output.dir}"/>
+    <pathelement location="${basedir}/Thrift/lib/libthrift-0.9.0.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-codec-1.4.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-lang-2.5.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-logging-1.1.1.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/httpclient-4.1.3.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/httpcore-4.1.3.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/log4j-1.2.14.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/servlet-api-2.5.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/slf4j-api-1.5.8.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/slf4j-log4j12-1.5.8.jar"/>
+  </path>
+  
+  <path id="thrift.module.classpath">
+    <pathelement location="${thrift.output.dir}"/>
+    <pathelement location="${basedir}/Thrift/lib/libthrift-0.9.0.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-codec-1.4.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-lang-2.5.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-logging-1.1.1.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/httpclient-4.1.3.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/httpcore-4.1.3.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/log4j-1.2.14.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/servlet-api-2.5.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/slf4j-api-1.5.8.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/slf4j-log4j12-1.5.8.jar"/>
+  </path>
+  
+  <path id="thrift.runtime.module.classpath">
+    <pathelement location="${thrift.testoutput.dir}"/>
+    <pathelement location="${thrift.output.dir}"/>
+    <pathelement location="${basedir}/Thrift/lib/libthrift-0.9.0.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-codec-1.4.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-lang-2.5.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/commons-logging-1.1.1.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/httpclient-4.1.3.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/httpcore-4.1.3.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/log4j-1.2.14.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/servlet-api-2.5.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/slf4j-api-1.5.8.jar"/>
+    <pathelement location="${basedir}/Thrift/lib/slf4j-log4j12-1.5.8.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.thrift">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.thrift">
+    <patternset refid="excluded.from.module.thrift"/>
+  </patternset>
+  
+  <path id="thrift.module.sourcepath">
+    <dirset dir="${module.thrift.basedir}/Thrift">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.thrift" depends="compile.module.thrift.production,compile.module.thrift.tests" description="Compile module Thrift"/>
+  
+  <target name="compile.module.thrift.production" description="Compile module Thrift; production classes">
+    <mkdir dir="${thrift.output.dir}"/>
+    <javac destdir="${thrift.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.thrift}"/>
+      <bootclasspath refid="thrift.module.bootclasspath"/>
+      <classpath refid="thrift.module.production.classpath"/>
+      <src refid="thrift.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.thrift"/>
+    </javac>
+    
+    <copy todir="${thrift.output.dir}">
+      <fileset dir="${module.thrift.basedir}/Thrift/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.thrift.tests" depends="compile.module.thrift.production" description="compile module Thrift; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.thrift" description="cleanup module">
+    <delete dir="${thrift.output.dir}"/>
+    <delete dir="${thrift.testoutput.dir}"/>
+  </target>
+  
+  
   <!-- Module XmlRpc -->
   
   <dirname property="module.xmlrpc.basedir" file="${ant.file}"/>
@@ -481,21 +596,23 @@
     <!-- Perform any build initialization in this target -->
   </target>
   
-  <target name="clean" depends="clean.module.jms, clean.module.rabbitmq, clean.module.sockets, clean.module.xmlrpc, clean.module.zeromq" description="cleanup all"/>
+  <target name="clean" depends="clean.module.jms, clean.module.rabbitmq, clean.module.sockets, clean.module.thrift, clean.module.xmlrpc, clean.module.zeromq" description="cleanup all"/>
   
-  <target name="build.modules" depends="init, clean, compile.module.jms, compile.module.rabbitmq, compile.module.sockets, compile.module.xmlrpc, compile.module.zeromq" description="build all modules"/>
+  <target name="build.modules" depends="init, clean, compile.module.jms, compile.module.rabbitmq, compile.module.sockets, compile.module.thrift, compile.module.xmlrpc, compile.module.zeromq" description="build all modules"/>
   
   <target name="init.artifacts">
     <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
     <property name="artifact.output.jms:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.rabbitmq:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.sockets:jar" value="${basedir}/out/artifacts"/>
+    <property name="artifact.output.thrift:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.xmlrpc:jar" value="${basedir}/out/artifacts"/>
     <property name="artifact.output.zeromq:jar" value="${basedir}/out/artifacts"/>
     <mkdir dir="${artifacts.temp.dir}"/>
     <property name="temp.jar.path.JMS.jar" value="${artifacts.temp.dir}/JMS.jar"/>
     <property name="temp.jar.path.RabbitMQ.jar" value="${artifacts.temp.dir}/RabbitMQ.jar"/>
     <property name="temp.jar.path.Sockets.jar" value="${artifacts.temp.dir}/Sockets.jar"/>
+    <property name="temp.jar.path.Thrift.jar" value="${artifacts.temp.dir}/Thrift.jar"/>
     <property name="temp.jar.path.XmlRpc.jar" value="${artifacts.temp.dir}/XmlRpc.jar"/>
     <property name="temp.jar.path.ZeroMQ.jar" value="${artifacts.temp.dir}/ZeroMQ.jar"/>
   </target>
@@ -532,6 +649,25 @@
     <copy file="${temp.jar.path.Sockets.jar}" tofile="${artifact.temp.output.sockets:jar}/Sockets.jar"/>
   </target>
   
+  <target name="artifact.thrift:jar" depends="init.artifacts, compile.module.thrift" description="Build &#39;Thrift:jar&#39; artifact">
+    <property name="artifact.temp.output.thrift:jar" value="${artifacts.temp.dir}/Thrift_jar"/>
+    <mkdir dir="${artifact.temp.output.thrift:jar}"/>
+    <jar destfile="${temp.jar.path.Thrift.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset dir="${thrift.output.dir}"/>
+      <zipfileset src="${basedir}/Thrift/lib/commons-codec-1.4.jar"/>
+      <zipfileset src="${basedir}/Thrift/lib/slf4j-api-1.5.8.jar"/>
+      <zipfileset src="${basedir}/Thrift/lib/commons-logging-1.1.1.jar"/>
+      <zipfileset src="${basedir}/Thrift/lib/httpcore-4.1.3.jar"/>
+      <zipfileset src="${basedir}/Thrift/lib/libthrift-0.9.0.jar"/>
+      <zipfileset src="${basedir}/Thrift/lib/log4j-1.2.14.jar"/>
+      <zipfileset src="${basedir}/Thrift/lib/commons-lang-2.5.jar"/>
+      <zipfileset src="${basedir}/Thrift/lib/slf4j-log4j12-1.5.8.jar"/>
+      <zipfileset src="${basedir}/Thrift/lib/httpclient-4.1.3.jar"/>
+      <zipfileset src="${basedir}/Thrift/lib/servlet-api-2.5.jar"/>
+    </jar>
+    <copy file="${temp.jar.path.Thrift.jar}" tofile="${artifact.temp.output.thrift:jar}/Thrift.jar"/>
+  </target>
+  
   <target name="artifact.xmlrpc:jar" depends="init.artifacts, compile.module.xmlrpc" description="Build &#39;XmlRpc:jar&#39; artifact">
     <property name="artifact.temp.output.xmlrpc:jar" value="${artifacts.temp.dir}/XmlRpc_jar"/>
     <mkdir dir="${artifact.temp.output.xmlrpc:jar}"/>
@@ -557,7 +693,7 @@
     <copy file="${temp.jar.path.ZeroMQ.jar}" tofile="${artifact.temp.output.zeromq:jar}/ZeroMQ.jar"/>
   </target>
   
-  <target name="build.all.artifacts" depends="artifact.jms:jar, artifact.rabbitmq:jar, artifact.sockets:jar, artifact.xmlrpc:jar, artifact.zeromq:jar" description="Build all artifacts">
+  <target name="build.all.artifacts" depends="artifact.jms:jar, artifact.rabbitmq:jar, artifact.sockets:jar, artifact.thrift:jar, artifact.xmlrpc:jar, artifact.zeromq:jar" description="Build all artifacts">
     <mkdir dir="${artifact.output.jms:jar}"/>
     <copy todir="${artifact.output.jms:jar}">
       <fileset dir="${artifact.temp.output.jms:jar}"/>
@@ -569,6 +705,10 @@
     <mkdir dir="${artifact.output.sockets:jar}"/>
     <copy todir="${artifact.output.sockets:jar}">
       <fileset dir="${artifact.temp.output.sockets:jar}"/>
+    </copy>
+    <mkdir dir="${artifact.output.thrift:jar}"/>
+    <copy todir="${artifact.output.thrift:jar}">
+      <fileset dir="${artifact.temp.output.thrift:jar}"/>
     </copy>
     <mkdir dir="${artifact.output.xmlrpc:jar}"/>
     <copy todir="${artifact.output.xmlrpc:jar}">
